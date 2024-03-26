@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch NDuyen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        img {
+            position: absolute;
+            cursor: pointer;
+        }
+
+        #score {
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            font-size: 3vw;
+            color: #333;
+        }
+
+        #time {
+            position: absolute;
+            top: 5%;
+            right: 5%;
+            font-size: 3vw;
+            color: #333;
+        }
+
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1;
+            display: none;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        #game-over h2 {
+            font-size: 4vw;
+            margin-bottom: 20px;
+        }
+
+        #restart-btn {
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            padding: 2vw 4vw;
+            font-size: 3vw;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #start-btn {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 2vw 4vw;
+            font-size: 3vw;
+            cursor: pointer;
+            border-radius: 5px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <button id="start-btn">Start Game</button>
+    <div id="score">Score: 0</div>
+    <div id="time">Time: 30s</div>
+
+    <div id="game-over">
+        <h2>Game Over!</h2>
+        <p>Your score is: <span id="final-score">0</span></p>
+        <button id="restart-btn">Play Again</button>
+    </div>
+
+    <script>
+        const scoreDisplay = document.getElementById('score');
+        const timeDisplay = document.getElementById('time');
+        const gameOverDisplay = document.getElementById('game-over');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-btn');
+        const startButton = document.getElementById('start-btn');
+
+        let score = 0;
+        let timeLimit = 30;
+        let timer;
+        let gameStarted = false;
+        
+        function generateKiwi() {
+            const kiwiImage = document.createElement('img');
+            kiwiImage.src = 'duyn.png';
+            kiwiImage.style.width = '100px';
+            kiwiImage.style.height = 'auto';
+
+            kiwiImage.addEventListener('click', function () {
+                if (gameStarted) {
+                    score++;
+                    updateScore();
+                    animateKiwi(kiwiImage);
+                }
+            });
+
+            document.body.appendChild(kiwiImage);
+
+            const kiwiWidth = kiwiImage.clientWidth;
+            const kiwiHeight = kiwiImage.clientHeight;
+
+            const randomLeft = Math.random() * (window.innerWidth - kiwiWidth);
+            const randomTop = Math.random() * (window.innerHeight - kiwiHeight);
+
+            kiwiImage.style.position = 'absolute'; 
+            kiwiImage.style.left = `${randomLeft}px`;
+            kiwiImage.style.top = `${randomTop}px`;
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = `Score: ${score}`;
+            if (score >= 30) {
+                endGame(true);
+            }
+        }
+
+        function updateTimer() {
+            timeDisplay.textContent = `Time: ${timeLimit}s`;
+            if (timeLimit === 0 && score < 30) {
+                endGame(false);
+            }
+        }
+
+        function startTimer() {
+            timer = setInterval(function () {
+                timeLimit--;
+                updateTimer();
+
+                if (timeLimit <= 0 && score < 30) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        function startGame() {
+            score = 0;
+            timeLimit = 30;
+            gameStarted = true;
+            updateScore();
+            updateTimer();
+            gameOverDisplay.style.display = 'none';
+            document.querySelectorAll('img').forEach(img => img.remove());
+            startTimer();
+            generateKiwi();
+        }
+
+        function endGame(won) {
+            clearInterval(timer);
+            gameStarted = false;
+            gameOverDisplay.style.display = 'block';
+            finalScoreDisplay.textContent = score;
+            if (won) {
+                gameOverDisplay.querySelector('h2').textContent = "You Won!";
+            } else {
+                gameOverDisplay.querySelector('h2').textContent = "Game Over!";
+            }
+        }
+
+        function animateKiwi(kiwiImage) {
+            kiwiImage.style.transform = 'scale(1.5)';
+            setTimeout(function () {
+                kiwiImage.style.transform = 'scale(1)';
+                kiwiImage.remove();
+                generateKiwi();
+            }, 300);
+        }
+
+        restartButton.addEventListener('click', function () {
+            startGame();
+        });
+
+        startButton.addEventListener('click', function () {
+            startGame();
+            startButton.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
